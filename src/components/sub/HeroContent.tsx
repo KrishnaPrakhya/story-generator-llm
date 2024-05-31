@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import {
   slideInFromLeft,
   slideInFromRight,
@@ -11,11 +12,12 @@ import { SparklesIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 
 const HeroContent = () => {
+  const router=useRouter();
   return (
     <motion.div
       initial="hidden"
       animate="visible"
-      className="flex flex-col md:flex-row h-screen items-center justify-center px-10 md:px-20 w-full z-[10]"
+      className="flex flex-col md:flex-row h-screen items-center justify-center px-10 md:px-20 w-full relative z-30"
     >
       <div className="h-full w-full flex flex-col gap-8 justify-center text-center top-28">
         <motion.div
@@ -56,7 +58,9 @@ const HeroContent = () => {
 
         <motion.a
           variants={slideInFromLeft(1)}
-          className="py-2 px-4 flex justify-center items-center button-primary text-center text-white cursor-pointer rounded-lg bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 transition-all duration-300 max-w-sm mx-auto text-lg"
+          className="py-2 px-4 flex justify-center items-center button-primary text-center text-white cursor-pointer rounded-lg bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 transition-all duration-300 max-w-sm mx-auto text-lg z-50 relative" onClick={()=>{
+            router.push("/generateStory")
+          }}
         >
           Get Started!
         </motion.a>

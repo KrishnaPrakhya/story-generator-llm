@@ -1,21 +1,23 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import StarsCanvas from "@/components/main/StarBackground";
 import Navbar from "@/components/main/Navbar";
 import Footer from "@/components/main/Footer";
+import AuthProvider from "@/context/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Space Portfolio",
-  description: "This is my portfolio",
+  title: "Story Generator",
+  description: "Story Generation using LLM",
 };
 
 export default function RootLayout({
   children,
+  session,
 }: {
   children: React.ReactNode;
+  session: any;
 }) {
   return (
     <html lang="en">
@@ -24,11 +26,16 @@ export default function RootLayout({
       </head>
       <body
         className={`${inter.className} bg-[#030014] overflow-y-scroll overflow-x-hidden`}
-      >
-        <StarsCanvas />
+        >
+        <AuthProvider>
+          <div className="flex flex-col min-h-screen">
         <Navbar />
+        <main className="flex-grow">
+
         {children}
-        <Footer />
+        </main>
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );
