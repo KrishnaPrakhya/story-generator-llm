@@ -44,7 +44,7 @@ export default function UploadPdf() {
         />
         <button
           onClick={handleFileUpload}
-          className="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md transition duration-300"
+          className="px-4 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white rounded-md transition duration-300"
         >
           Upload PDF
         </button>
