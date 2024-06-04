@@ -63,7 +63,7 @@ export default function Chatbot({ nameFile }: Props) {
     <div>
       <div className="p-4 w-full rounded-md shadow-md flex justify-between pb-6">
         <motion.div initial={{x:-200,opacity:0}} animate={{x:0,opacity:1}} transition={{duration:1.5}} className="w-1/2">
-          <p className="text-white">Prompt</p>
+          <p className="text-white">Prompt:</p>
           <textarea
             value={query}
             onChange={(e) => setQuery(e.target.value)}

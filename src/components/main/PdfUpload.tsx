@@ -40,7 +40,7 @@ export default function UploadPdf() {
         <input
           type="file"
           onChange={handleFileChange}
-          className="p-2 text-white bg-transparent border border-gray-600 rounded-md"
+          className="p-3 text-white bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 rounded-md"
         />
         <button
           onClick={handleFileUpload}

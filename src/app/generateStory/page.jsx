@@ -17,10 +17,10 @@ function Page() {
   const [option, setOption] = useState("");
 
   return (
-    <div className="h-screen flex flex-col">
-      <div className="flex-grow flex items-center justify-center bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 overflow-auto">
-        <div className="relative top-24 w-full max-w-4xl mx-auto p-4">
-          <div className="mb-4">
+    <div className="h-screen flex flex-col ">
+      <div className="flex-grow flex items-center justify-center bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 overflow-auto ">
+        <div className="relative  w-full max-w-4xl mx-auto p-4 top-24">
+          <div className="mb-4 top-24">
             <Select onValueChange={(e) => setOption(e)} className="w-[180px]">
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select the option" />

@@ -59,7 +59,7 @@ function OnlyPrompt(props: Props) {
     <>
       <div className="relative z-30 w-full flex">
         <motion.div initial={{ x: -200, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 1.5 }} className="mb-4 w-1/2">
-          <p className='text-white'>Prompt</p>
+          <p className='text-white'>Prompt:</p>
           <textarea
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -121,7 +121,7 @@ function OnlyPrompt(props: Props) {
 
       <style jsx>{`
         .loader {
-          border: 4px solid rgba(0, 0, 0, 0.1);
+          border: 4px solid rgba(9, 7, 0, 0.1);
           width: 36px;
           height: 36px;
           border-radius: 50%;

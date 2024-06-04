@@ -55,12 +55,13 @@ function RegisterPage(props: Props) {
           onSubmit={handleSubmit}
         >
           <div>
+          <h1 className="p-3 login-title text-7xl bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-cyan-500"><span className='text-4xl font-bold'>Register</span></h1>
             <input
               type='text'
               name='userName'
               placeholder='Enter Your UserName'
               onChange={handleInput}
-              className='z-30'
+              className='z-30 login-input'
             />
           </div>
           <div>
@@ -70,7 +71,7 @@ function RegisterPage(props: Props) {
               placeholder='Enter Your Email'
               onChange={handleInput}
               required
-              className='z-30'
+              className='z-30 login-input'
             />
           </div>
           <div>
@@ -80,12 +81,12 @@ function RegisterPage(props: Props) {
               placeholder='Enter Your Password'
               onChange={handleInput}
               required
-              className='z-30'
+              className='z-30 login-input'
             />
           </div>
           <button 
             type='submit' 
-            className='text-white bg-blue-500 p-2 mt-4 z-30' 
+            className='text-white bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 transition-all duration-300 p-2 mt-4 z-30 rounded-lg' 
           >
             Register
           </button>

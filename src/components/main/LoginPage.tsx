@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn } from "next-auth/react";
+import StarsCanvas from './StarBackground';
 
 interface Props {}
 
@@ -47,42 +48,42 @@ function LoginPage(props: Props) {
 
   return (
     <>
-      <div className="relative z-30"> 
-        <form
-          className='relative top-24 flex flex-col gap-5'
-          onSubmit={handleSubmit}
-        >
-        
-          <div>
+    <StarsCanvas/>
+      <div className="login-container z-30"> 
+      <div className="login-form-wrapper"> 
+        <h1 className="p-3 login-title text-7xl bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-cyan-500"><span className='text-4xl font-bold'>Login</span></h1> 
+        <form className="login-form" onSubmit={handleSubmit}> 
+          <div className="input-group">
+            <label htmlFor="email">Email</label>
             <input
-              type='email'
-              name='email'
-              placeholder='Enter Your Email'
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Enter Your Email"
               onChange={handleInput}
               required
-              className='z-30'
+              className="login-input"
             />
           </div>
-          <div>
+          <div className="input-group">
+            <label htmlFor="password">Password</label>
             <input
-              type='password'
-              name='password'
-              placeholder='Enter Your Password'
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter Your Password"
               onChange={handleInput}
               required
-              className='z-30'
+              className="login-input"
             />
           </div>
-          <button 
-            type='submit' 
-            className='text-white bg-blue-500 p-2 mt-4 z-30' 
-          >
-            Login
+          <button type="submit" className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 transition-all duration-300 w-full p-3 rounded-lg text-white text-xl mt-2">
+            <p>{pending ? "Loading..." : "Login"}</p>
           </button>
-          {error && <span className='text-white'>{error}</span>}
-          {pending && <span className='text-white'>Loading...</span>}
+          {error && <span className="error-message">{error}</span>}
         </form>
       </div>
+    </div>
     </>
   );
 }
