@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState,useRef } from "react";
 import {
   Drawer,
   DrawerClose,
@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import {motion} from "framer-motion"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Footer from "./Footer";
+import { IoIosPause, IoIosPlay,IoIosMic } from "react-icons/io";
 interface Props {
   nameFile: string;
 }
@@ -21,6 +21,10 @@ interface Props {
 export default function Chatbot({ nameFile }: Props) {
   const [query, setQuery] = useState("");
   const [response, setResponse] = useState("");
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null); 
   const [score,setScore]=useState("");
   const [genre, setGenre] = useState("");
   const [loading, setLoading] = useState(false);
@@ -56,6 +60,33 @@ export default function Chatbot({ nameFile }: Props) {
       console.error("Error fetching response:", error);
     }
     setLoading(false);
+  };
+  useEffect(() => {
+    const loadVoices = () => {
+      const synthVoices = window.speechSynthesis.getVoices();
+      setVoices(synthVoices);
+      if (synthVoices.length > 0) {
+        setSelectedVoice(synthVoices[0]);
+      }
+    };
+
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }, []);
+
+  const speechFn = (text: string) => {
+    const speech = new SpeechSynthesisUtterance();
+    speechUtteranceRef.current = speech; 
+    console.log(text)
+    speech.voice = selectedVoice;
+    speech.text = text;
+
+    window.speechSynthesis.speak(speech);
+    speech.onstart = () => setIsSpeaking(true);
+    speech.onpause = () => setIsSpeaking(false);
+    speech.onresume = () => setIsSpeaking(true);
+    speech.onend = () => setIsSpeaking(false);
+
   };
 
   return (
@@ -97,12 +128,56 @@ export default function Chatbot({ nameFile }: Props) {
             <SelectItem value="romance">Romance</SelectItem>
           </SelectContent>
         </Select>
+        <IoIosMic />
+        <Select onValueChange={(e) => {
+          voices.forEach((voice) => {
+            if (voice.name === e) {
+              setSelectedVoice(voice);
+            }
+          });
+        }}>
+          <SelectTrigger className="w-[180px] bg-white text-black">
+            <SelectValue placeholder="Select Voice Type" />
+          </SelectTrigger>
+          <SelectContent>
+            {voices.map((voice, i) => (
+              <SelectItem key={i} value={voice.name}>
+                {voice.name} ({voice.lang})
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       <button
         onClick={handleQuerySubmit}
         className="px-4 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600  text-white rounded-md transition duration-300"
       >
         Submit
       </button>
+    <div className="flex">
+    {isSpeaking ? (
+          <IoIosPause
+            color='white'
+            size={40}
+            className='mr-10 cursor-pointer'
+            onClick={() => {window.speechSynthesis.pause()
+              console.log("hi")}
+            } 
+          />
+        ) : (
+          <IoIosPlay
+            color='white'
+            size={40}
+            className='mr-10 cursor-pointer'
+            onClick={() => {
+              if (speechUtteranceRef.current && window.speechSynthesis.paused) {
+                window.speechSynthesis.resume(); 
+              } else {
+                speechFn(typedResponse?typedResponse:"");
+                console.log("hi")
+              }
+            }}
+          />
+        )}
     <Drawer>
   <DrawerTrigger className=' px-4 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 transition-all duration-300 text-white rounded-md'>Show Similarity Status</DrawerTrigger>
   <DrawerContent>
@@ -117,6 +192,7 @@ export default function Chatbot({ nameFile }: Props) {
     </DrawerFooter>
   </DrawerContent>
 </Drawer>
+    </div>
       </div>
     </div>
     <style jsx>{`

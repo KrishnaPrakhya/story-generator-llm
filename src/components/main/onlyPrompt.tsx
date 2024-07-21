@@ -1,20 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
+import React, { useState, useEffect,useRef } from 'react';
+import {
+  Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger
+} from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { IoIosPause, IoIosPlay,IoIosMic  } from "react-icons/io";
+import SpeechRecognition from './TextToSpeech';
 
 interface Props {}
 
 function OnlyPrompt(props: Props) {
   const {} = props;
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
   const [query, setQuery] = useState("");
   const [response, setResponse] = useState("");
   const [score, setScore] = useState("");
-  const [open, setOpen] = useState(false);
   const [genre, setGenre] = useState("");
   const [loading, setLoading] = useState(false);
   const [typedResponse, setTypedResponse] = useState("");
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null); 
+  useEffect(() => {
+    const loadVoices = () => {
+      const synthVoices = window.speechSynthesis.getVoices();
+      setVoices(synthVoices);
+      if (synthVoices.length > 0) {
+        setSelectedVoice(synthVoices[0]);
+      }
+    };
+
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }, []);
+
+  const speechFn = (text: string) => {
+    const speech = new SpeechSynthesisUtterance();
+    speechUtteranceRef.current = speech; 
+    console.log(text)
+    speech.voice = selectedVoice;
+    speech.text = text;
+
+    window.speechSynthesis.speak(speech);
+    speech.onstart = () => setIsSpeaking(true);
+    speech.onpause = () => setIsSpeaking(false);
+    speech.onresume = () => setIsSpeaking(true);
+    speech.onend = () => setIsSpeaking(false);
+
+  };
 
   useEffect(() => {
     let index = 0;
@@ -29,10 +63,10 @@ function OnlyPrompt(props: Props) {
       return () => clearInterval(interval);
     }
   }, [response]);
-
+let count=0;
   const handleQuerySubmit = async () => {
     setLoading(true);
-    setTypedResponse(""); 
+    setTypedResponse("");
     try {
       const res = await fetch("http://127.0.0.1:8080/ask_story", {
         method: "POST",
@@ -42,7 +76,6 @@ function OnlyPrompt(props: Props) {
         body: JSON.stringify({ query, genre }),
       });
       const data = await res.json();
-      console.log(data);
       setResponse(data.Answer);
       setScore(data.Score);
       if (data.status === 500) {
@@ -54,6 +87,14 @@ function OnlyPrompt(props: Props) {
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (window.speechSynthesis.speaking) {
+      setIsSpeaking(true);
+    } else {
+      setIsSpeaking(false);
+    }
+  }, [count]);
 
   return (
     <>
@@ -82,6 +123,7 @@ function OnlyPrompt(props: Props) {
         </motion.div>
       </div>
       <div className='flex justify-between'>
+        <div className='flex'>
         <Select onValueChange={setGenre}>
           <SelectTrigger className="w-[180px] bg-white text-black">
             <SelectValue placeholder="Select Genre" />
@@ -93,30 +135,77 @@ function OnlyPrompt(props: Props) {
             <SelectItem value="romance">Romance</SelectItem>
           </SelectContent>
         </Select>
+ <SpeechRecognition onTranscript={setQuery}/>
+
+        </div>
+        <Select onValueChange={(e) => {
+          voices.forEach((voice) => {
+            if (voice.name === e) {
+              setSelectedVoice(voice);
+            }
+          });
+        }}>
+          <SelectTrigger className="w-[180px] bg-white text-black">
+            <SelectValue placeholder="Select Voice Type" />
+          </SelectTrigger>
+          <SelectContent>
+            {voices.map((voice, i) => (
+              <SelectItem key={i} value={voice.name}>
+                {voice.name} ({voice.lang})
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <button
           onClick={handleQuerySubmit}
-          className="px-4 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 transition-all duration-300 text-white rounded-md"
+          className="px-4 py-2 ml-28 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 transition-all duration-300 text-white rounded-md"
         >
           Submit
         </button>
-        <Drawer>
-          <DrawerTrigger className=' px-4 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 transition-all duration-300 text-white rounded-md'>
-            Show Similarity Status
-          </DrawerTrigger>
-          <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle>The Similarity between the Stories are:</DrawerTitle>
-            </DrawerHeader>
-            <div className='flex justify-center'>
-              {score && <DrawerDescription className='text-lg font-extrabold'>{score}</DrawerDescription>}
-            </div>
-            <DrawerFooter>
-              <DrawerClose>
-                <Button variant="outline">Cancel</Button>
-              </DrawerClose>
-            </DrawerFooter>
-          </DrawerContent>
-        </Drawer>
+        <div className='flex'>
+        {isSpeaking ? (
+          <IoIosPause
+            color='white'
+            size={40}
+            className='mr-10 cursor-pointer'
+            onClick={() => {window.speechSynthesis.pause()
+              console.log("hi")}
+            } 
+          />
+        ) : (
+          <IoIosPlay
+            color='white'
+            size={40}
+            className='mr-10 cursor-pointer'
+            onClick={() => {
+              if (speechUtteranceRef.current && window.speechSynthesis.paused) {
+                window.speechSynthesis.resume(); 
+              } else {
+                speechFn(typedResponse?typedResponse:"");
+                console.log("hi")
+              }
+            }}
+          />
+        )}
+          <Drawer>
+            <DrawerTrigger className=' px-4 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 transition-all duration-300 text-white rounded-md'>
+              Show Similarity Status
+            </DrawerTrigger>
+            <DrawerContent>
+              <DrawerHeader>
+                <DrawerTitle>The Similarity between the Stories are:</DrawerTitle>
+              </DrawerHeader>
+              <div className='flex justify-center'>
+                {score && <DrawerDescription className='text-lg font-extrabold'>{score}</DrawerDescription>}
+              </div>
+              <DrawerFooter>
+                <DrawerClose>
+                  <Button variant="outline">Cancel</Button>
+                </DrawerClose>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+        </div>
       </div>
 
       <style jsx>{`

@@ -5,7 +5,9 @@ import About from "@/components/main/About";
 import StarsCanvas from "@/components/main/StarBackground";
 import { useSession } from "next-auth/react";
 import Footer from "@/components/main/Footer";
+
 export default  function Home() {
+ 
   const {data:session}=useSession();
   if (session) {
     console.log('Logged in as:', session?.user?.name);
@@ -21,6 +23,7 @@ export default  function Home() {
         </div>
         <Footer/>
       </div>
+      
     </>
   );
   }
