@@ -1,68 +1,27 @@
-"use client";
-import { useEffect, useState,useRef } from "react";
+import React, { useState, useEffect,useRef } from 'react';
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
-import { Button } from "@/components/ui/button"
-import {motion} from "framer-motion"
+  Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger
+} from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { IoIosPause, IoIosPlay,IoIosMic } from "react-icons/io";
+import { IoIosPause, IoIosPlay,IoIosMic  } from "react-icons/io";
 import SpeechRecognition from './TextToSpeech';
-interface Props {
-  nameFile: string;
-}
 
-export default function Chatbot({ nameFile }: Props) {
-  const [query, setQuery] = useState("");
-  const [response, setResponse] = useState("");
+interface Props {}
+
+function FineTune(props: Props) {
+  const {} = props;
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null); 
-  
-  const [score,setScore]=useState("");
+  const [query, setQuery] = useState("");
+  const [response, setResponse] = useState("");
+  const [score, setScore] = useState("");
   const [genre, setGenre] = useState("");
   const [loading, setLoading] = useState(false);
   const [typedResponse, setTypedResponse] = useState("");
-  useEffect(()=>{
-    let index=0;
-    if(response){
-      const interval=setInterval(()=>{
-        setTypedResponse((prev)=>prev+response.charAt(index));
-        index++;
-        if(index===response.length){
-          clearInterval(interval);
-        }
-      },5)
-      return ()=>clearInterval(interval);
-    }
-  },[response])
-  const handleQuerySubmit = async () => {
-    try {
-      setLoading(true);
-      console.log(nameFile);
-      const res = await fetch("http://127.0.0.1:8080/ask_story_with_pdf", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ query, nameFile,genre }),
-      });
-      const data = await res.json();
-      setResponse(data.Answer);
-      setScore(data.Score);
-    } catch (error) {
-      console.error("Error fetching response:", error);
-    }
-    setLoading(false);
-  };
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null); 
   useEffect(() => {
     const loadVoices = () => {
       const synthVoices = window.speechSynthesis.getVoices();
@@ -91,22 +50,67 @@ export default function Chatbot({ nameFile }: Props) {
 
   };
 
+  useEffect(() => {
+    let index = 0;
+    if (response) {
+      const interval = setInterval(() => {
+        setTypedResponse((prev) => prev + response.charAt(index));
+        index++;
+        if (index === response.length) {
+          clearInterval(interval);
+        }
+      }, 5);
+      return () => clearInterval(interval);
+    }
+  }, [response]);
+let count=0;
+  const handleQuerySubmit = async () => {
+    setLoading(true);
+    setTypedResponse("");
+    try {
+      const res = await fetch("http://127.0.0.1:8080/fine_tuned", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query, genre }),
+      });
+      const data = await res.json();
+      setResponse(data.Answer);
+      setScore(data.Score);
+      if (data.status === 500) {
+        setResponse("Input Is Too Short For Processing The Story!");
+      }
+    } catch (error) {
+      console.error("Error fetching response:", error);
+      setResponse("Input Is Too Short For Processing The Story!");
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (window.speechSynthesis.speaking) {
+      setIsSpeaking(true);
+    } else {
+      setIsSpeaking(false);
+    }
+  }, [count]);
+
   return (
     <>
-    <div>
-      <div className="p-4 w-full rounded-md shadow-md flex justify-between pb-6">
-        <motion.div initial={{x:-200,opacity:0}} animate={{x:0,opacity:1}} transition={{duration:1.5}} className="w-1/2">
-          <p className="text-white">Prompt:</p>
+      <div className=" z-30 w-full flex">
+        <motion.div initial={{ x: -200, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 1.5 }} className="mb-4 w-1/2">
+          <p className='text-white'>Prompt:</p>
           <textarea
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Enter your suggestions on the story..."
+            placeholder="Enter your Suggestions on the story..."
             className="w-full p-2 border rounded-md text-white glass-effect"
-            rows={18}
+            rows={18} cols={100}
           />
         </motion.div>
-        <motion.div initial={{x:200,opacity:0}} animate={{x:0,opacity:1}} transition={{duration:1.5}} className="w-1/2 h-full">
-          <p className="text-white">Response:</p>
+        <motion.div initial={{ x: 200, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 1.5 }} className="text-white w-1/2 h-full">
+          <p>Response:</p>
           <div className="p-2 h-[450px] w-full border rounded-md text-white glass-effect overflow-y-auto">
             {loading ? (
               <div className="flex justify-center items-center h-full">
@@ -118,8 +122,9 @@ export default function Chatbot({ nameFile }: Props) {
           </div>
         </motion.div>
       </div>
-      <div className="flex justify-between">
-      <Select onValueChange={setGenre}>
+      <div className='flex justify-between'>
+        <div className='flex'>
+        <Select onValueChange={setGenre}>
           <SelectTrigger className="w-[180px] bg-white text-black">
             <SelectValue placeholder="Select Genre" />
           </SelectTrigger>
@@ -130,7 +135,9 @@ export default function Chatbot({ nameFile }: Props) {
             <SelectItem value="romance">Romance</SelectItem>
           </SelectContent>
         </Select>
-        <SpeechRecognition onTranscript={setQuery}/>
+ <SpeechRecognition onTranscript={setQuery}/>
+
+        </div>
         <Select onValueChange={(e) => {
           voices.forEach((voice) => {
             if (voice.name === e) {
@@ -149,14 +156,14 @@ export default function Chatbot({ nameFile }: Props) {
             ))}
           </SelectContent>
         </Select>
-      <button
-        onClick={handleQuerySubmit}
-        className="px-4 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600  text-white rounded-md transition duration-300"
-      >
-        Submit
-      </button>
-    <div className="flex">
-    {isSpeaking ? (
+        <button
+          onClick={handleQuerySubmit}
+          className="px-4 py-2 ml-28 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 transition-all duration-300 text-white rounded-md"
+        >
+          Submit
+        </button>
+        <div className='flex'>
+        {isSpeaking ? (
           <IoIosPause
             color='white'
             size={40}
@@ -180,29 +187,30 @@ export default function Chatbot({ nameFile }: Props) {
             }}
           />
         )}
-    <Drawer>
-  <DrawerTrigger className=' px-4 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 transition-all duration-300 text-white rounded-md'>Show Similarity Status</DrawerTrigger>
-  <DrawerContent>
-    <DrawerHeader>
-      <DrawerTitle>The Similarity between the Stories are:</DrawerTitle>
-
-    </DrawerHeader>
-      <center>
-        {score && <DrawerDescription className=" font-bold text-2xl">{score}</DrawerDescription>}
-      </center>
-    <DrawerFooter>
-      <DrawerClose>
-        <Button variant="outline">Cancel</Button>
-      </DrawerClose>
-    </DrawerFooter>
-  </DrawerContent>
-</Drawer>
-    </div>
+          <Drawer>
+            <DrawerTrigger className=' px-4 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 transition-all duration-300 text-white rounded-md'>
+              Show Similarity Status
+            </DrawerTrigger>
+            <DrawerContent>
+              <DrawerHeader>
+                <DrawerTitle>The Similarity between the Stories are:</DrawerTitle>
+              </DrawerHeader>
+              <div className='flex justify-center'>
+                {score && <DrawerDescription className='text-lg font-extrabold'>{score}</DrawerDescription>}
+              </div>
+              <DrawerFooter>
+                <DrawerClose>
+                  <Button variant="outline">Cancel</Button>
+                </DrawerClose>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+        </div>
       </div>
-    </div>
-    <style jsx>{`
+
+      <style jsx>{`
         .loader {
-          border: 4px solid rgba(0, 0, 0, 0.1);
+          border: 4px solid rgba(9, 7, 0, 0.1);
           width: 36px;
           height: 36px;
           border-radius: 50%;
@@ -219,7 +227,8 @@ export default function Chatbot({ nameFile }: Props) {
           }
         }
       `}</style>
-
     </>
   );
 }
+
+export default FineTune;
