@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Chatbot from "./ChatBot";
-
+// import Footer from "./Footer";
 export default function UploadPdf() {
   const [file, setFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState("");
@@ -57,6 +57,8 @@ export default function UploadPdf() {
           <Chatbot nameFile={fName} />
         </div>
       )}
+      {/* <Footer /> */}
+
     </>
   );
 }

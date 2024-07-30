@@ -188,7 +188,7 @@ export default function Chatbot({ nameFile }: Props) {
 
     </DrawerHeader>
       <center>
-        {score && <DrawerDescription className=" font-bold text-2xl">{score}</DrawerDescription>}
+      {score && <DrawerDescription className=" font-bold text-2xl">{score}</DrawerDescription>}
       </center>
     <DrawerFooter>
       <DrawerClose>

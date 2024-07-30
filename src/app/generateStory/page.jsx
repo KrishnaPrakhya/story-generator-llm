@@ -20,8 +20,11 @@ function Page() {
     <div className="h-screen flex flex-col ">
       <div className="flex-grow flex items-center justify-center bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 overflow-auto ">
         <div className="relative  w-full max-w-4xl mx-auto p-4 top-24">
-          <div className="mb-4 top-24">
-            <Select onValueChange={(e) => setOption(e)} className="w-[180px]">
+          <div className="mb-4 top-24 ">
+            <Select
+              onValueChange={(e) => setOption(e)}
+              className="w-[180px] top-72"
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select the option" />
               </SelectTrigger>
@@ -45,7 +48,6 @@ function Page() {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }
