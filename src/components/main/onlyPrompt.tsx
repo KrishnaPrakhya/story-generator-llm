@@ -7,6 +7,14 @@ import { motion } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { IoIosPause, IoIosPlay,IoIosMic  } from "react-icons/io";
 import SpeechRecognition from './TextToSpeech';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 interface Props {}
 
@@ -15,6 +23,7 @@ function OnlyPrompt(props: Props) {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
   const [query, setQuery] = useState("");
+  const [vector,setVector]=useState("");
   const [response, setResponse] = useState("");
   const [score, setScore] = useState("");
   const [genre, setGenre] = useState("");
@@ -34,6 +43,24 @@ function OnlyPrompt(props: Props) {
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
   }, []);
+
+  const getFeatureVector=async(content:String)=>{
+    try{
+      const res=await fetch("http://127.0.0.1:8080/story_features",{
+        method:"POST",
+        headers:{
+          'Content-Type':"application/json"
+        },
+        body:JSON.stringify({"story":content})
+      })
+      const vec=await res.json();
+      setVector(vec.features)
+      
+    }
+    catch(err){
+      console.log(err)
+    }
+  }
 
   const speechFn = (text: string) => {
     const speech = new SpeechSynthesisUtterance();
@@ -100,6 +127,9 @@ let count=0;
     <>
       <div className="relative z-30 w-full flex">
         <motion.div initial={{ x: -200, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 1.5 }} className="mb-4 w-1/2">
+        {
+          response ?<div className='mt-[25px]'></div>:null
+        }
           <p className='text-white'>Prompt:</p>
           <textarea
             value={query}
@@ -110,6 +140,18 @@ let count=0;
           />
         </motion.div>
         <motion.div initial={{ x: 200, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 1.5 }} className="text-white w-1/2 h-full">
+        {response && <Dialog>
+  <DialogTrigger className="text-white font-bold" onClick={()=>{
+    getFeatureVector(response)}}>Open</DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Feature Vectors</DialogTitle>
+      <DialogDescription>
+          {vector}
+      </DialogDescription>
+    </DialogHeader>
+  </DialogContent>
+</Dialog>}
           <p>Response:</p>
           <div className="p-2 h-[450px] w-full border rounded-md text-white glass-effect overflow-y-auto">
             {loading ? (
