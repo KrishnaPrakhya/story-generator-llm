@@ -1,6 +1,14 @@
 "use client";
 import { useEffect, useState,useRef } from "react";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import {
   Drawer,
   DrawerClose,
   DrawerContent,
@@ -17,10 +25,12 @@ import { IoIosPause, IoIosPlay,IoIosMic } from "react-icons/io";
 import SpeechRecognition from './TextToSpeech';
 interface Props {
   nameFile: string;
+  extractedStory:string
 }
 
-export default function Chatbot({ nameFile }: Props) {
+export default function Chatbot({ nameFile,extractedStory }: Props) {
   const [query, setQuery] = useState("");
+  const [genLang,setGenLang]=useState("English");
   const [response, setResponse] = useState("");
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
@@ -29,6 +39,7 @@ export default function Chatbot({ nameFile }: Props) {
   
   const [score,setScore]=useState("");
   const [genre, setGenre] = useState("");
+  const [vector,setVector]=useState("");
   const [loading, setLoading] = useState(false);
   const [typedResponse, setTypedResponse] = useState("");
   useEffect(()=>{
@@ -44,16 +55,36 @@ export default function Chatbot({ nameFile }: Props) {
       return ()=>clearInterval(interval);
     }
   },[response])
+
+  const getFeatureVector=async(content:String)=>{
+    try{
+      console.log(nameFile);
+      const res=await fetch("http://127.0.0.1:8080/story_features",{
+        method:"POST",
+        headers:{
+          'Content-Type':"application/json"
+        },
+        body:JSON.stringify({"story":content})
+      })
+      const vec=await res.json();
+      setVector(vec.features)
+      
+    }
+    catch(err){
+      console.log(err)
+    }
+  }
   const handleQuerySubmit = async () => {
     try {
       setLoading(true);
+      setTypedResponse("");
       console.log(nameFile);
       const res = await fetch("http://127.0.0.1:8080/ask_story_with_pdf", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ query, nameFile,genre }),
+        body: JSON.stringify({ query, nameFile,genre,genLang }),
       });
       const data = await res.json();
       setResponse(data.Answer);
@@ -75,7 +106,6 @@ export default function Chatbot({ nameFile }: Props) {
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
   }, []);
-
   const speechFn = (text: string) => {
     const speech = new SpeechSynthesisUtterance();
     speechUtteranceRef.current = speech; 
@@ -90,13 +120,25 @@ export default function Chatbot({ nameFile }: Props) {
     speech.onend = () => setIsSpeaking(false);
 
   };
-
+  
   return (
     <>
     <div>
       <div className="p-4 w-full rounded-md shadow-md flex justify-between pb-6">
         <motion.div initial={{x:-200,opacity:0}} animate={{x:0,opacity:1}} transition={{duration:1.5}} className="w-1/2">
-          <p className="text-white">Prompt:</p>
+        {response && <Dialog>
+  <DialogTrigger className="text-white font-bold" onClick={()=>{
+    getFeatureVector(extractedStory)}}>Open</DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Feature Vectors</DialogTitle>
+      <DialogDescription>
+          {vector}
+      </DialogDescription>
+    </DialogHeader>
+  </DialogContent>
+</Dialog>}
+          <p className="text-white mt-[16px]">Prompt:</p>
           <textarea
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -106,7 +148,34 @@ export default function Chatbot({ nameFile }: Props) {
           />
         </motion.div>
         <motion.div initial={{x:200,opacity:0}} animate={{x:0,opacity:1}} transition={{duration:1.5}} className="w-1/2 h-full">
+        {response && <Dialog>
+  <DialogTrigger className="text-white font-bold" onClick={()=>{
+    getFeatureVector(response)}}>Open</DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Feature Vectors</DialogTitle>
+      <DialogDescription>
+          {vector}
+      </DialogDescription>
+    </DialogHeader>
+  </DialogContent>
+</Dialog>}
+<div className="flex justify-between">
+
           <p className="text-white">Response:</p>
+          <Select onValueChange={setGenLang}>
+           
+          <SelectTrigger className="w-[180px] bg-white text-black">
+            <SelectValue placeholder="Choose Language " />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Hindi">Hindi</SelectItem>
+            <SelectItem value="Telugu">Telugu</SelectItem>
+            <SelectItem value="Japanese">Japanese</SelectItem>
+            <SelectItem value="Malayam">Malayam</SelectItem>
+          </SelectContent>
+        </Select>
+</div>
           <div className="p-2 h-[450px] w-full border rounded-md text-white glass-effect overflow-y-auto">
             {loading ? (
               <div className="flex justify-center items-center h-full">
@@ -175,7 +244,6 @@ export default function Chatbot({ nameFile }: Props) {
                 window.speechSynthesis.resume(); 
               } else {
                 speechFn(typedResponse?typedResponse:"");
-                console.log("hi")
               }
             }}
           />

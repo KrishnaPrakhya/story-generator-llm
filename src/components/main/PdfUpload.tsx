@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Chatbot from "./ChatBot";
 // import Footer from "./Footer";
 export default function UploadPdf() {
+  const [story,setStory]=useState("");
   const [file, setFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState("");
   const [fName, setFname] = useState("");
@@ -26,8 +27,10 @@ export default function UploadPdf() {
         body: formData,
       });
       const data = await res.json();
+      console.log(data)
       setUploadStatus(`Upload successful: ${data.fileName}`);
       setFname(data.fileName);
+      setStory(data.extracted_story);
     } catch (error) {
       console.error("Error uploading file:", error);
       setUploadStatus("Upload failed.");
@@ -54,7 +57,7 @@ export default function UploadPdf() {
       </div>
       {fName && (
         <div className="mt-5 w-full">
-          <Chatbot nameFile={fName} />
+          <Chatbot nameFile={fName} extractedStory={story} />
         </div>
       )}
       {/* <Footer /> */}

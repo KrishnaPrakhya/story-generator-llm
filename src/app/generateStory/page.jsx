@@ -7,11 +7,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 import UploadPdf from "@/components/main/PdfUpload";
 import OnlyPrompt from "@/components/main/onlyPrompt";
 import { motion } from "framer-motion";
-import Footer from "@/components/main/Footer";
 
 function Page() {
   const [option, setOption] = useState("");
@@ -21,6 +21,15 @@ function Page() {
       <div className="flex-grow flex items-center justify-center bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 overflow-auto ">
         <div className="relative  w-full max-w-4xl mx-auto p-4 top-24">
           <div className="mb-4 top-24 ">
+            <div className="text-white">
+              <Switch
+                color="orange"
+                onClick={() => {
+                  console.log("Similarity Mode Toggled");
+                }}
+              />
+            </div>
+
             <Select
               onValueChange={(e) => setOption(e)}
               className="w-[180px] top-72"
