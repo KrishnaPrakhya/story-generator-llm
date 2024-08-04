@@ -17,22 +17,25 @@ function Page() {
   const [option, setOption] = useState("");
 
   return (
-    <div className="h-screen flex flex-col ">
+    <div className="h-screen flex flex-col">
       <div className="flex-grow flex items-center justify-center bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 overflow-auto ">
         <div className="relative  w-full max-w-4xl mx-auto p-4 top-24">
           <div className="mb-4 top-24 ">
-            <div className="text-white">
-              <Switch
+            <div className="text-white h-72 relative ">
+              <br />
+              <br />
+              {/* <Switch
+                className="mt-72 text-yellow-500  "
                 color="orange"
                 onClick={() => {
                   console.log("Similarity Mode Toggled");
                 }}
-              />
+              /> */}
             </div>
 
             <Select
               onValueChange={(e) => setOption(e)}
-              className="w-[180px] top-72"
+              className="w-[180px] top-72 mt-72"
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select the option" />
