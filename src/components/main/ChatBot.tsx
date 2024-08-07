@@ -128,7 +128,7 @@ export default function Chatbot({ nameFile,extractedStory }: Props) {
         <motion.div initial={{x:-200,opacity:0}} animate={{x:0,opacity:1}} transition={{duration:1.5}} className="w-1/2">
         {response && <Dialog>
   <DialogTrigger className="text-white font-bold" onClick={()=>{
-    getFeatureVector(extractedStory)}}>Open</DialogTrigger>
+    getFeatureVector(extractedStory)}}>Feature Vector</DialogTrigger>
   <DialogContent>
     <DialogHeader>
       <DialogTitle>Feature Vectors</DialogTitle>
@@ -150,7 +150,7 @@ export default function Chatbot({ nameFile,extractedStory }: Props) {
         <motion.div initial={{x:200,opacity:0}} animate={{x:0,opacity:1}} transition={{duration:1.5}} className="w-1/2 h-full">
         {response && <Dialog>
   <DialogTrigger className="text-white font-bold" onClick={()=>{
-    getFeatureVector(response)}}>Open</DialogTrigger>
+    getFeatureVector(response)}}>Feature Vector</DialogTrigger>
   <DialogContent>
     <DialogHeader>
       <DialogTitle>Feature Vectors</DialogTitle>
@@ -169,6 +169,7 @@ export default function Chatbot({ nameFile,extractedStory }: Props) {
             <SelectValue placeholder="Choose Language " />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="English">English</SelectItem>
             <SelectItem value="Hindi">Hindi</SelectItem>
             <SelectItem value="Telugu">Telugu</SelectItem>
             <SelectItem value="Japanese">Japanese</SelectItem>

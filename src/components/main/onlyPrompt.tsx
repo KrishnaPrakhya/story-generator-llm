@@ -21,6 +21,7 @@ interface Props {}
 function OnlyPrompt(props: Props) {
   const {} = props;
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [genLang,setGenLang]=useState("English");
   const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
   const [query, setQuery] = useState("");
   const [vector,setVector]=useState("");
@@ -100,7 +101,7 @@ let count=0;
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ query, genre }),
+        body: JSON.stringify({ query, genre,genLang }),
       });
       const data = await res.json();
       setResponse(data.Answer);
@@ -130,7 +131,7 @@ let count=0;
         {
           response ?<div className='mt-[25px]'></div>:null
         }
-          <p className='text-white'>Prompt:</p>
+          <p className='text-white mb-[16px] '>Prompt:</p>
           <textarea
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -142,7 +143,7 @@ let count=0;
         <motion.div initial={{ x: 200, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 1.5 }} className="text-white w-1/2 h-full">
         {response && <Dialog>
   <DialogTrigger className="text-white font-bold" onClick={()=>{
-    getFeatureVector(response)}}>Open</DialogTrigger>
+    getFeatureVector(response)}}>Feature Vector</DialogTrigger>
   <DialogContent>
     <DialogHeader>
       <DialogTitle>Feature Vectors</DialogTitle>
@@ -152,7 +153,23 @@ let count=0;
     </DialogHeader>
   </DialogContent>
 </Dialog>}
+<div className='flex justify-between'>
+
           <p>Response:</p>
+<Select  onValueChange={setGenLang}>
+           
+           <SelectTrigger className="w-[180px] bg-white text-black">
+             <SelectValue placeholder="Choose Language " />
+           </SelectTrigger>
+           <SelectContent>
+             <SelectItem value="English">English</SelectItem>
+             <SelectItem value="Hindi">Hindi</SelectItem>
+             <SelectItem value="Telugu">Telugu</SelectItem>
+             <SelectItem value="Japanese">Japanese</SelectItem>
+             <SelectItem value="Malayam">Malayam</SelectItem>
+           </SelectContent>
+         </Select>
+</div>
           <div className="p-2 h-[450px] w-full border rounded-md text-white glass-effect overflow-y-auto">
             {loading ? (
               <div className="flex justify-center items-center h-full">
